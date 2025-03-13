@@ -1,0 +1,312 @@
+{
+  "name": "Jarvis-backend-beta",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "61f3b1e7-6d2d-499f-988a-0e351e339855",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -620,
+        120
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "Yup7NwnqZsxu7skf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "4011f9d6-0ac9-48a0-9934-334cce80e198",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -440,
+        120
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "7f5bbb51-649f-41f3-9361-f2fa8d013759",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -700,
+        -220
+      ],
+      "webhookId": "bf7390de-fdeb-4c04-9a41-1cd83ab5c658",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are the Jarvis health assistant. Your job is to send the users query to the correct tool. You should never be writing emails, or creating even summaries, you just need to call the correct tool.\n\n## Tools\n- AlphaFold3: Use this tool to predict the protein sequence \n- Tavily: Use this tool to search the web\n- RFdiffusion: Use this tool to generate protein structures\n\n## Rules\n\n\n## Examples\n1) \n- Input: find the protein sequence for the gene BRCA1\n- Action: Use Neurosnap API to predict the protein\n- Output: The protein sequence for the gene BRCA1 is: [protein sequence]\n\n2)\n- Input: search the web for the best treatment for diabetes\n- Action: Use Tavily to search the web\n- Output: Here are the search results for the best treatment for diabetes: [search results]\n\n\n## Final Reminders\nHere is the current date/time: {{ $now }}"
+        }
+      },
+      "id": "addeee76-1fe5-46ed-8d69-6d54d65c535b",
+      "name": "Jarvis AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -340,
+        -220
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "587687e2-ddb3-4791-a328-4bc7c1b5b265",
+      "name": "SerpAPI",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "position": [
+        -280,
+        140
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "serpApi": {
+          "id": "9BQn7fPwSWPrNeTa",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://neurosnap.ai/api/job/submit/RFdiffusion-v2?note=my job description",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "X-API-KEY",
+              "valueProvider": "fieldValue"
+            },
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "Input Structure",
+              "valueProvider": "fieldValue",
+              "value": " [{\"type\": \"pdb\", \"name\": \"my_protein\", \"data\": \"ATOM 1 N ALA A 1\"}]"
+            },
+            {
+              "name": "Timesteps",
+              "valueProvider": "fieldValue",
+              "value": "50"
+            },
+            {
+              "name": "Use Beta Model",
+              "valueProvider": "fieldValue",
+              "value": "false"
+            },
+            {
+              "name": "Binder Input Chain",
+              "valueProvider": "fieldValue",
+              "value": "A"
+            },
+            {
+              "name": "Binding Pocket Residue Start",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "Binding Pocket Residue End",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "Binder Length Minimum",
+              "valueProvider": "fieldValue",
+              "value": "10"
+            },
+            {
+              "name": "Binder Length Maximum",
+              "valueProvider": "fieldValue",
+              "value": "20"
+            },
+            {
+              "name": "Hotspots",
+              "valueProvider": "fieldValue",
+              "value": " A30,A33,A34,A50-64"
+            },
+            {
+              "name": "Use Beta Model",
+              "valueProvider": "fieldValue",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -20,
+        140
+      ],
+      "id": "e67f8a11-5587-4872-a875-defbe001a303",
+      "name": "RFdiffusion"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Post neurosnap api and get job id",
+        "method": "POST",
+        "url": "https://neurosnap.ai/api/job/submit/Protenix (AlphaFold3)?note=my job description",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "X-API-KEY",
+              "valueProvider": "fieldValue"
+            },
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "Input Sequences",
+              "valueProvider": "fieldValue",
+              "value": "{\"aa\": {\"prot1\":\"LCLYTHIGRNIYYGSYLYSETWN\"}, \"dna\": {\"dna1\":\"CGTGCTGGCGACTAAGTC\"}, \"rna\": {\"rna1\":\"GACUAAGAUGGACUUCGU\"}     }"
+            },
+            {
+              "name": "Diffusion Samples",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "MSA Mode",
+              "valueProvider": "fieldValue",
+              "value": "mmseqs2"
+            },
+            {
+              "name": "Number Recycles",
+              "valueProvider": "fieldValue",
+              "value": "10"
+            },
+            {
+              "name": "Sampling Steps",
+              "valueProvider": "fieldValue",
+              "value": "200"
+            },
+            {
+              "name": "Diffusion Samples",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        140
+      ],
+      "id": "73c4545b-79be-40f9-8594-97b4267071a0",
+      "name": "AlphaFold3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RFdiffusion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlphaFold3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b1160834-6c3d-41eb-9902-d51ae3b0ec98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06f7bf1bd4ecfe5dc954ebe46d36fedcbfab485d6faf5d299977761575f44ecf"
+  },
+  "id": "ZjMX5H0F0kSoG5iE",
+  "tags": []
+}
