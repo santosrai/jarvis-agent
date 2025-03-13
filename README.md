@@ -11,7 +11,7 @@ The **AI Agent for Protein Detection** is an advanced tool designed for medical 
 ## Getting Started
 1. Clone the repository:
    ```sh
-   git clone   
+   git clone https://github.com/santosrai/jarvis-agent.git 
    ```
 
 
